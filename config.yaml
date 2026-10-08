@@ -1,0 +1,33 @@
+# RouteBench config. Any OpenAI-compatible endpoint works (OpenRouter, NexLLM, ...).
+base_url: https://openrouter.ai/api/v1
+api_key_env: OPENROUTER_API_KEY
+
+# Pick 4 models spanning price tiers, ideally from different providers.
+# Check the exact current ids and prices with:
+#   python -m routebench models --contains qwen
+# The run refuses to start if an id is not listed on the endpoint.
+models:
+  - id: z-ai/glm-4.7-flash          # cheapest tier
+  - id: qwen/qwen3-30b-a3b          # cheap
+  - id: deepseek/deepseek-chat      # mid
+  - id: openai/gpt-4.1              # strong / expensive
+  # Optional manual prices (USD per 1M tokens) if the endpoint does not list them:
+  # - id: some/model
+  #   price_in: 0.10
+  #   price_out: 0.40
+
+n_per_type: 100        # 4 families x 100 = 400 tasks, split ~50/50 dev/test
+seed: 20261008
+temperature: 0
+max_tokens: 2048
+timeout_s: 90
+max_retries: 3
+concurrency: 8
+budget_usd: 5          # hard stop; the run is resumable if it stops early
+
+# Keep thinking off so every model answers in one pass and costs stay comparable.
+extra_body:
+  reasoning:
+    enabled: false
+  usage:
+    include: true      # OpenRouter returns the exact charged cost per call
